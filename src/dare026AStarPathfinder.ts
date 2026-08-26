@@ -16,7 +16,16 @@ export function findAStarPath(
   const rows = grid.length;
   const cols = grid[0]?.length ?? 0;
   if (rows === 0 || cols === 0) return null;
-  if (grid[start.y][start.x] !== 0 || grid[target.y][target.x] !== 0) return null;
+  const inBounds = (node: Node2D): boolean =>
+    Number.isInteger(node.x) &&
+    Number.isInteger(node.y) &&
+    node.x >= 0 &&
+    node.x < cols &&
+    node.y >= 0 &&
+    node.y < rows;
+
+  if (!inBounds(start) || !inBounds(target)) return null;
+  if (grid[start.y]?.[start.x] !== 0 || grid[target.y]?.[target.x] !== 0) return null;
 
   const heuristic = (a: Node2D, b: Node2D) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
   const openSet: Node2D[] = [start];
@@ -28,7 +37,7 @@ export function findAStarPath(
   gScore.set(key(start), 0);
   fScore.set(key(start), heuristic(start, target));
 
-  const directions = allowDiagonal
+  const directions: ReadonlyArray<readonly [number, number]> = allowDiagonal
     ? [[0, 1], [1, 0], [0, -1], [-1, 0], [1, 1], [-1, 1], [1, -1], [-1, -1]]
     : [[0, 1], [1, 0], [0, -1], [-1, 0]];
 
@@ -49,7 +58,7 @@ export function findAStarPath(
     for (const [dx, dy] of directions) {
       const nx = current.x + dx;
       const ny = current.y + dy;
-      if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && grid[ny][nx] === 0) {
+      if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && grid[ny]?.[nx] === 0) {
         const neighbor = { x: nx, y: ny };
         const tentativeG = (gScore.get(key(current)) ?? Infinity) + 1;
         if (tentativeG < (gScore.get(key(neighbor)) ?? Infinity)) {

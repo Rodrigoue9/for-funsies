@@ -9,6 +9,6 @@ export class SimpleBloomFilter {
   }
   has(item: string): boolean {
     const idx = Math.abs(item.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % this.bits.length;
-    return this.bits[idx];
+    return this.bits[idx] ?? false;
   }
 }
